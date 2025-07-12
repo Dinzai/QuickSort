@@ -10,14 +10,13 @@ Inspiration and psudo-code -> Coding Trains Quick Sort
 
 
 This uses SFML to draw to the window
-Written on Linux, away from my Windows Computer   
+Written on Linux, away from my Windows Computer
 
 :'(
 
 
 
 */
-
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -106,12 +105,13 @@ struct Graph {
     data->GenerateRandomNumbers(amount);
   }
 
+  ~Graph() { delete data; }
+
   void MakeTower() {
 
     for (int i = 0; i < data->listOfNumbers.size(); i++) {
 
       int height = data->listOfNumbers[i];
-      iD.push_back(height);
       offset = (windowWidth / data->listOfNumbers.size()) * 0.1;
       float positionX = startPosition + (i * width * offset);
       float positionY = windowHeight - 200;
@@ -139,8 +139,6 @@ struct Graph {
   int width = 10;
   float offset = 0;
 
-  std::vector<int> iD; // vlaues, the heights
-
   std::vector<sf::RectangleShape> shapes;
 };
 
@@ -150,10 +148,12 @@ struct Screen {
     g = new Graph(0);
   }
 
+  ~Screen() { delete g; }
+
+private:
   void GenerateGraph(int amount) {
 
     g = new Graph(amount);
-    // g->data->SortList();
     g->MakeTower();
   }
 
@@ -179,39 +179,52 @@ struct Screen {
     }
   }
 
-  void Run() {
+  void Update() {
+    deltaTime = mainClock.getElapsedTime();
 
-    while (window.isOpen()) {
+    UserInput();
 
-      deltaTime = mainClock.getElapsedTime();
+    mainClock.restart();
+  }
 
-      UserInput();
-      while (window.pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
-          window.close();
-        }
+  void FixedUpdate() {
+    while (window.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        window.close();
+      }
 
-        if (event.type == sf::Event::KeyPressed) {
-          if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
-            canMake = true;
-          }
-        }
-
-        if (event.type == sf::Event::KeyPressed) {
-          if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-            canSort = true;
-          }
+      if (event.type == sf::Event::KeyPressed) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
+          canMake = true;
         }
       }
 
-      mainClock.restart();
-
-      window.clear(sf::Color::Cyan);
-      DrawGraph();
-      window.display();
+      if (event.type == sf::Event::KeyPressed) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+          canSort = true;
+        }
+      }
     }
   }
 
+  void Drawable() {
+    window.clear(sf::Color::Cyan);
+    DrawGraph();
+    window.display();
+  }
+
+  void Loop() {
+    while (window.isOpen()) {
+      Update();
+      FixedUpdate();
+      Drawable();
+    }
+  }
+
+public:
+  void Run() { Loop(); }
+
+private:
   Graph *g;
 
   bool canMake = false;
