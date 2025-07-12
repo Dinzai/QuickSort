@@ -3,6 +3,8 @@
 Author: Brett Rogers
 Inspirtation and Pseudo Code: The Coding Train 
 
+May need to have sfml installed on your computer ! Version 2.61
+
  QuickSort Visualation in SFML
 
 
